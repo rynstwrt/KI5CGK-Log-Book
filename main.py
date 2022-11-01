@@ -1,75 +1,67 @@
 import PySimpleGUI as sg
 
-
 sg.theme("DarkBlue")
 
-
 col_size = (20, 1)
+text_padding = (0, 10)
 
-
-date_col = [
-    [sg.Text("Date")],
-    [sg.InputText(size=col_size)]
-]
-
-frequency_col = [
-    [sg.Text("Frequency")],
-    [sg.InputText(size=col_size)]
-]
-
-mode_col = [
-    [sg.Text("Mode")],
-    [sg.InputText(size=col_size)]
-]
-
-call_sign_col = [
-    [sg.Text("Call Sign")],
-    [sg.InputText(size=col_size)]
-]
-
-name_col = [
-    [sg.Text("Name")],
-    [sg.InputText(size=col_size)]
-]
-
-location_col = [
-    [sg.Text("Location")],
-    [sg.InputText(size=col_size)]
-]
-
-
-existing_row = [[
-    sg.Text("Date", size=col_size, background_color="orange"),
-    sg.Text("Frequency", size=col_size),
-    sg.Text("Mode", size=col_size),
-    sg.Text("Call Sign", size=col_size),
-    sg.Text("Name", size=col_size),
-    sg.Text("Location", size=col_size),
-]]
-
+existing_values = []
 
 layout = [
+    [sg.Column(layout=[[
+        sg.Frame("Date", key="date-frame", layout=[[
+            sg.CalendarButton("Select Date",
+                               close_when_date_chosen=True,
+                               auto_size_button=True,
+                               no_titlebar=True,
+                               format="%Y-%m-%d",
+                               enable_events=True,
+                               key="button-calendar",
+                               button_color="#ff885e",
+                               )
+
+        ]]),
+        sg.Frame("Time", layout=[[
+            sg.InputText(key="time")
+        ]]),
+        sg.Frame("Frequency", layout=[[
+            sg.InputText(key="frequency")
+        ]]),
+        sg.Frame("Mode", layout=[[
+            sg.InputText(key="mode")
+        ]]),
+        sg.Frame("Call Sign", layout=[[
+            sg.InputText(key="call-sign")
+        ]]),
+        sg.Frame("Name", layout=[[
+            sg.InputText(key="name")
+        ]]),
+        sg.Frame("Location", layout=[[
+            sg.InputText(key="location")
+        ]])
+    ]], element_justification="c")],
     [
-        sg.Column(date_col),
-        sg.Column(frequency_col),
-        sg.Column(mode_col),
-        sg.Column(call_sign_col),
-        sg.Column(name_col),
-        sg.Column(location_col)
-    ],
-    [
-        [
-            sg.Button("Add Entry")
-        ]
-    ],
-    [
-        existing_row
+        sg.Table(values=existing_values,
+                 headings=["Date", "Time", "Frequency", "Mode", "Call Sign", "Name", "Location"],
+                 auto_size_columns=True,
+                 justification="center",
+                 key="table",
+                 enable_events=True,
+                 expand_x=True,
+                 expand_y=True,
+                 vertical_scroll_only=True,
+                 enable_click_events=True,
+                 selected_row_colors=("white", "black"),
+                 ),
+        sg.Column(element_justification="c", layout=[
+            [sg.Button("Add Entry", key="button-add", expand_x=True, button_color="#ff885e")],
+            [sg.Button("Delete Selected Row", key="button-delete", expand_x=True, button_color="#ff885e")]
+        ])
     ]
 ]
 
-
 window = sg.Window(title="Log Book", layout=layout, resizable=True, element_justification="c")
-
+num_entries = 0
 
 while True:
     event, values = window.read()
@@ -77,5 +69,27 @@ while True:
     if event == sg.WIN_CLOSED:
         break
 
-    if event == "Add Entry":
-        break
+    if event == "button-calendar":
+        window["date-frame"].update(value=values["button-calendar"])
+
+    if event == "button-add":
+        num_entries += 1
+        existing_values = [[
+            values["button-calendar"],
+            values["time"],
+            values["frequency"],
+            values["mode"],
+            values["call-sign"],
+            values["name"],
+            values["location"],
+        ]] + existing_values
+
+        window["table"].update(values=existing_values)
+
+    if event == "button-delete":
+        del_row_index = window["table"].last_clicked_position[0]
+        existing_values.remove(existing_values[del_row_index])
+        window["table"].update(values=existing_values)
+
+
+window.Close()
