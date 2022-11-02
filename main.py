@@ -9,23 +9,20 @@ from PyQt6.QtWidgets import (QApplication,
                              QFormLayout,
                              QTimeEdit,
                              QLineEdit,
-                             QListView,)
+                             QScrollArea)
 from PyQt6.QtGui import (
-    QStandardItemModel,
-    QStandardItem,
     QFont,
     QFontDatabase)
 from PyQt6.QtCore import (
     Qt,
     QDateTime,
-    QDate
 )
-
 
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+
         self.setWindowTitle("Log Book")
         self.setStyleSheet("background-color: #282c34; color: white;")
 
@@ -37,10 +34,13 @@ class MainWindow(QWidget):
         self.date_edit = None
         self.time_edit = None
 
-        id = QFontDatabase.addApplicationFont("VT323-Regular.ttf")
-        if id < 0:
+        self.right_vbox = None
+        self.scroll_area = None
+
+        font_id = QFontDatabase.addApplicationFont("VT323-Regular.ttf")
+        if font_id < 0:
             print("ERROR LOADING FONT")
-        families = QFontDatabase.applicationFontFamilies(id)
+        families = QFontDatabase.applicationFontFamilies(font_id)
         self.button_font = QFont(families[0], 15)
         self.header_font = QFont(families[0], 20)
         self.label_font = QFont(families[0], 15)
@@ -48,12 +48,14 @@ class MainWindow(QWidget):
         self.entryList = []
         self.init_ui()
 
+
     def init_ui(self):
         layout = QHBoxLayout()
 
 
         # Left section
         left_layout = QVBoxLayout()
+        left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         left_layout_form = QFormLayout()
         left_layout_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -67,13 +69,9 @@ class MainWindow(QWidget):
         self.time_edit.setTime(QDateTime.currentDateTime().time())
 
         self.frequency_edit = QLineEdit()
-
         self.mode_edit = QLineEdit()
-
         self.call_sign_edit = QLineEdit()
-
         self.name_edit = QLineEdit()
-
         self.location_edit = QLineEdit()
 
         label_style = "color: #ff885e;"
@@ -115,51 +113,44 @@ class MainWindow(QWidget):
 
         left_layout.addLayout(left_layout_form)
 
-        layout.addLayout(left_layout)
-
-
-
-        # Middle spacer section
-        spacer = QWidget()
-        spacer.setLayout(QVBoxLayout())
-        spacer.setMinimumWidth(50)
-        layout.addWidget(spacer)
-
-
-        # Right section
-        right_layout = QVBoxLayout()
-
-        btn_style = "background-color: #ff885e; color: black; border: 0; padding: 8px 8px;"
+        btn_style = "background-color: #ff885e; color: black; border: 0; padding: 8px 8px; margin: 4px 0;"
 
         btn_add = QPushButton("ADD ENTRY")
         btn_add.setStyleSheet(btn_style)
         btn_add.setFont(self.button_font)
-        right_layout.addWidget(btn_add)
+        left_layout.addWidget(btn_add)
         btn_add.clicked.connect(self.on_add_entry)
 
-        btn_del = QPushButton("DELETE SELECTED ENTRY")
-        btn_del.setStyleSheet(btn_style + " margin: 10px 0 20px 0;")
-        btn_del.setFont(self.button_font)
-        right_layout.addWidget(btn_del)
-        btn_del.clicked.connect(self.on_delete_entry)
+        layout.addLayout(left_layout)
 
 
-        entry_label = QLabel("ENTRIES:")
-        entry_label.setFont(self.header_font)
-        entry_label.setStyleSheet("font-weight: bold; color: #ff885e;")
-        entry_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        right_layout.addWidget(entry_label)
+        # Middle spacer section
+        # spacer = QWidget()
+        # spacer.setLayout(QVBoxLayout())
+        # spacer.setMinimumWidth(50)
+        # layout.addWidget(spacer)
 
-        entry_list_view = QListView()
-        entry_list_model = QStandardItemModel()
-        entry_list_view.setModel(entry_list_model)
 
-        # for i in ["0", "10", "4"]:
-        #     item = QStandardItem(i)
-        #     entry_list_model.appendRow(item)
+        # Right section
+        right_scroll_area = QScrollArea()
+        right_widget = QWidget()
+        self.right_vbox = QVBoxLayout()
+        self.right_vbox.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        self.right_vbox.setContentsMargins(10, 10, 10, 10)
 
-        right_layout.addWidget(entry_list_view)
-        layout.addLayout(right_layout)
+        # for i in range(1, 20):
+        #     a = QLabel("TEST")
+        #     self.right_vbox.addWidget(a)
+
+        right_widget.setLayout(self.right_vbox)
+
+        right_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        right_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        right_scroll_area.setWidgetResizable(True)
+        right_scroll_area.setMinimumWidth(500)
+        right_scroll_area.setWidget(right_widget)
+
+        layout.addWidget(right_scroll_area)
 
 
         # Display
@@ -176,20 +167,18 @@ class MainWindow(QWidget):
         name = self.name_edit.text()
         location = self.location_edit.text()
 
-        print(date)
-        print(t)
-        print(freq)
-        print(mode)
-        print(call_sign)
-        print(name)
-        print(location)
+        values = [date, t, freq, mode, call_sign, name, location]
+        final_string = ""
+        for i, value in enumerate(values):
+            if not value:
+                value = "N/A"
 
-        s = "   ".join([date, t, freq, mode, call_sign, name, location])
+            final_string += value
 
+            if i is not len(values):
+                final_string += "    "
 
-
-    def on_delete_entry(self):
-        print("DEL")
+        self.right_vbox.addWidget(QLabel(final_string))
 
 
 
