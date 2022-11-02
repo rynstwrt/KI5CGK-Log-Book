@@ -9,10 +9,11 @@ from PyQt6.QtWidgets import (QApplication,
                              QFormLayout,
                              QTimeEdit,
                              QLineEdit,
-                             QScrollArea)
+                             QScrollArea,)
 from PyQt6.QtGui import (
     QFont,
-    QFontDatabase)
+    QFontDatabase,
+    QIcon)
 from PyQt6.QtCore import (
     Qt,
     QDateTime,
@@ -23,8 +24,9 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Log Book")
-        self.setStyleSheet("background-color: #282c34; color: white;")
+        self.setWindowTitle("KI5CGK Log Book")
+        self.setWindowIcon(QIcon("logo.png"))
+        self.setStyleSheet("background-color: #24252b; color: white;")
 
         self.location_edit = None
         self.name_edit = None
