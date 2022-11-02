@@ -9,10 +9,12 @@ from PyQt6.QtWidgets import (QApplication,
                              QFormLayout,
                              QTimeEdit,
                              QLineEdit,
-                             QListView)
+                             QListView,)
 from PyQt6.QtGui import (
     QStandardItemModel,
-    QStandardItem)
+    QStandardItem,
+    QFont,
+    QFontDatabase)
 from PyQt6.QtCore import (
     Qt,
     QDateTime,
@@ -24,6 +26,9 @@ from PyQt6.QtCore import (
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Log Book")
+        self.setStyleSheet("background-color: #282c34; color: white;")
+
         self.location_edit = None
         self.name_edit = None
         self.call_sign_edit = None
@@ -31,6 +36,14 @@ class MainWindow(QWidget):
         self.frequency_edit = None
         self.date_edit = None
         self.time_edit = None
+
+        id = QFontDatabase.addApplicationFont("VT323-Regular.ttf")
+        if id < 0:
+            print("ERROR LOADING FONT")
+        families = QFontDatabase.applicationFontFamilies(id)
+        self.button_font = QFont(families[0], 15)
+        self.header_font = QFont(families[0], 20)
+        self.label_font = QFont(families[0], 15)
 
         self.entryList = []
         self.init_ui()
@@ -48,6 +61,7 @@ class MainWindow(QWidget):
 
         self.date_edit = QDateEdit(calendarPopup=True)
         self.date_edit.setDateTime(QDateTime.currentDateTime())
+        self.date_edit.setStyleSheet("outline: none;")
 
         self.time_edit = QTimeEdit()
         self.time_edit.setTime(QDateTime.currentDateTime().time())
@@ -62,30 +76,77 @@ class MainWindow(QWidget):
 
         self.location_edit = QLineEdit()
 
-        left_layout_form.addRow("Date:", self.date_edit)
-        left_layout_form.addRow("Time:", self.time_edit)
-        left_layout_form.addRow("Frequency:", self.frequency_edit)
-        left_layout_form.addRow("Mode:", self.mode_edit)
-        left_layout_form.addRow("Call Sign:", self.call_sign_edit)
-        left_layout_form.addRow("Name:", self.name_edit)
-        left_layout_form.addRow("Location:", self.location_edit)
+        label_style = "color: #ff885e;"
+
+        date_label = QLabel("Date:")
+        date_label.setFont(self.label_font)
+        date_label.setStyleSheet(label_style)
+        left_layout_form.addRow(date_label, self.date_edit)
+
+        time_label = QLabel("Time:")
+        time_label.setFont(self.label_font)
+        time_label.setStyleSheet(label_style)
+        left_layout_form.addRow(time_label, self.time_edit)
+
+        call_sign_label = QLabel("Call Sign:")
+        call_sign_label.setFont(self.label_font)
+        call_sign_label.setStyleSheet(label_style)
+        left_layout_form.addRow(call_sign_label, self.call_sign_edit)
+
+        freq_label = QLabel("Frequency:")
+        freq_label.setFont(self.label_font)
+        freq_label.setStyleSheet(label_style)
+        left_layout_form.addRow(freq_label, self.frequency_edit)
+
+        mode_label = QLabel("Mode:")
+        mode_label.setFont(self.label_font)
+        mode_label.setStyleSheet(label_style)
+        left_layout_form.addRow(mode_label, self.mode_edit)
+
+        name_label = QLabel("Name:")
+        name_label.setFont(self.label_font)
+        name_label.setStyleSheet(label_style)
+        left_layout_form.addRow(name_label, self.name_edit)
+
+        loc_label = QLabel("Location:")
+        loc_label.setFont(self.label_font)
+        loc_label.setStyleSheet(label_style)
+        left_layout_form.addRow(loc_label, self.location_edit)
+
         left_layout.addLayout(left_layout_form)
 
         layout.addLayout(left_layout)
 
 
+
+        # Middle spacer section
+        spacer = QWidget()
+        spacer.setLayout(QVBoxLayout())
+        spacer.setMinimumWidth(50)
+        layout.addWidget(spacer)
+
+
         # Right section
         right_layout = QVBoxLayout()
 
+        btn_style = "background-color: #ff885e; color: black; border: 0; padding: 8px 8px;"
+
         btn_add = QPushButton("ADD ENTRY")
+        btn_add.setStyleSheet(btn_style)
+        btn_add.setFont(self.button_font)
         right_layout.addWidget(btn_add)
         btn_add.clicked.connect(self.on_add_entry)
 
         btn_del = QPushButton("DELETE SELECTED ENTRY")
+        btn_del.setStyleSheet(btn_style + " margin: 10px 0 20px 0;")
+        btn_del.setFont(self.button_font)
         right_layout.addWidget(btn_del)
         btn_del.clicked.connect(self.on_delete_entry)
 
+
         entry_label = QLabel("ENTRIES:")
+        entry_label.setFont(self.header_font)
+        entry_label.setStyleSheet("font-weight: bold; color: #ff885e;")
         entry_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         right_layout.addWidget(entry_label)
 
@@ -103,7 +164,6 @@ class MainWindow(QWidget):
 
         # Display
         self.setLayout(layout)
-        self.setWindowTitle("Log Book")
         self.show()
 
 
@@ -135,5 +195,8 @@ class MainWindow(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
+    app.setStyleSheet("QLabel{letter-spacing: 2px; text-transform: uppercase; word-spacing: -4px;}")
     window = MainWindow()
+
     sys.exit(app.exec())
