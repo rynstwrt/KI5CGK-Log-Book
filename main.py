@@ -39,13 +39,13 @@ class MainWindow(QWidget):
         self.right_vbox = None
         self.scroll_area = None
 
-        font_id = QFontDatabase.addApplicationFont("VT323-Regular.ttf")
+        font_id = QFontDatabase.addApplicationFont("/Users/ryanstewart/Documents/GitHub/LogBook/VT323-Regular.ttf")
         if font_id < 0:
             print("ERROR LOADING FONT")
         families = QFontDatabase.applicationFontFamilies(font_id)
-        self.button_font = QFont(families[0], 15)
+        self.button_font = QFont(families[0], 20)
         self.header_font = QFont(families[0], 20)
-        self.label_font = QFont(families[0], 15)
+        self.label_font = QFont(families[0], 20)
 
         self.entryList = []
         self.init_ui()
@@ -140,10 +140,28 @@ class MainWindow(QWidget):
         self.right_vbox.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         self.right_vbox.setContentsMargins(10, 10, 10, 10)
 
+        right_hbox = QHBoxLayout()
+        self.col_date = QVBoxLayout()
+        self.col_time = QVBoxLayout()
+        self.col_freq = QVBoxLayout()
+        self.col_mode = QVBoxLayout()
+        self.col_call_sign = QVBoxLayout()
+        self.col_name = QVBoxLayout()
+        self.col_location = QVBoxLayout()
+
+        right_hbox.addLayout(self.col_date)
+        right_hbox.addLayout(self.col_time)
+        right_hbox.addLayout(self.col_freq)
+        right_hbox.addLayout(self.col_mode)
+        right_hbox.addLayout(self.col_call_sign)
+        right_hbox.addLayout(self.col_name)
+        right_hbox.addLayout(self.col_location)
+
         # for i in range(1, 20):
         #     a = QLabel("TEST")
         #     self.right_vbox.addWidget(a)
 
+        self.right_vbox.addLayout(right_hbox)
         right_widget.setLayout(self.right_vbox)
 
         right_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
@@ -169,18 +187,26 @@ class MainWindow(QWidget):
         name = self.name_edit.text()
         location = self.location_edit.text()
 
-        values = [date, t, freq, mode, call_sign, name, location]
-        final_string = ""
-        for i, value in enumerate(values):
-            if not value:
-                value = "N/A"
+        self.col_date.addWidget(QLabel(date))
+        self.col_time.addWidget(QLabel(t))
+        self.col_freq.addWidget(QLabel(freq))
+        self.col_mode.addWidget(QLabel(mode))
+        self.col_call_sign.addWidget(QLabel(call_sign))
+        self.col_name.addWidget(QLabel(name))
+        self.col_location.addWidget(QLabel(location))
 
-            final_string += value
-
-            if i is not len(values):
-                final_string += "    "
-
-        self.right_vbox.addWidget(QLabel(final_string))
+        # values = [date, t, freq, mode, call_sign, name, location]
+        # final_string = ""
+        # for i, value in enumerate(values):
+        #     if not value:
+        #         value = "N/A"
+        #
+        #     final_string += value
+        #
+        #     if i is not len(values):
+        #         final_string += "    "
+        #
+        # self.right_vbox.addWidget(QLabel(final_string))
 
 
 
