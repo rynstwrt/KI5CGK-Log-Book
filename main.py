@@ -108,12 +108,11 @@ class MainWindow(QWidget):
         self.col_location = QVBoxLayout()
 
         right_hbox = QHBoxLayout()
-        column_margins = [10, 0, 10, 0]
         columns = [self.col_date, self.col_time, self.col_call_sign, self.col_freq,
                    self.col_mode, self.col_name, self.col_location]
 
         for column in columns:
-            column.setContentsMargins(*column_margins)
+            column.setContentsMargins(10, 0, 10, 0)
             right_hbox.addLayout(column)
 
         right_vbox.addLayout(right_hbox)
@@ -143,7 +142,7 @@ class MainWindow(QWidget):
         values = []
         for value in [date, t, freq, mode, call_sign, name, location]:
             if not value:
-                value = "-"
+                value = "-/-"
             values.append(value)
 
         columns = [self.col_date, self.col_time, self.col_freq, self.col_mode,
