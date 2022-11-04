@@ -1,11 +1,12 @@
 import sys
 from os import path
+
+from PyQt6.QtCore import Qt, QDateTime
+from PyQt6.QtGui import QFont, QFontDatabase, QIcon
 from PyQt6.QtWidgets import (QApplication, QWidget, QHBoxLayout,
                              QPushButton, QLabel, QVBoxLayout,
                              QDateEdit, QFormLayout, QTimeEdit,
                              QLineEdit, QScrollArea)
-from PyQt6.QtGui import QFont, QFontDatabase, QIcon
-from PyQt6.QtCore import Qt, QDateTime
 
 
 class MainWindow(QWidget):
@@ -34,11 +35,10 @@ class MainWindow(QWidget):
 
         self.init_ui()
 
-
     def init_ui(self):
         layout = QHBoxLayout()
 
-        # Left section
+        # ------------ LEFT SECTION ------------ #
         left_layout = QVBoxLayout()
         left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -60,8 +60,6 @@ class MainWindow(QWidget):
         self.location_edit = QLineEdit()
 
         font_id = QFontDatabase.addApplicationFont(path.abspath("VT323-Regular.ttf"))
-        if font_id < 0:
-            print("ERROR LOADING FONT")
         families = QFontDatabase.applicationFontFamilies(font_id)
         button_font = QFont(families[0], 20)
         label_font = QFont(families[0], 20)
@@ -82,7 +80,6 @@ class MainWindow(QWidget):
             label.setStyleSheet("color: #ff885e;")
             left_layout_form.addRow(label, labels[label_text])
 
-
         left_layout.addLayout(left_layout_form)
 
         btn_style = "background-color: #ff885e; color: black; border: 0; padding: 8px 8px; margin: 4px 0;"
@@ -95,7 +92,7 @@ class MainWindow(QWidget):
 
         layout.addLayout(left_layout)
 
-        # Right section
+        # ------------ RIGHT SECTION ------------ #
         right_scroll_area = QScrollArea()
         right_widget = QWidget()
         right_vbox = QVBoxLayout()
@@ -130,10 +127,9 @@ class MainWindow(QWidget):
 
         layout.addWidget(right_scroll_area)
 
-        # Display
+        # ------------ DISPLAY ------------ #
         self.setLayout(layout)
         self.show()
-
 
     def on_add_entry(self):
         date = self.date_edit.date().toString("yyyy-MM-dd")
@@ -150,7 +146,8 @@ class MainWindow(QWidget):
                 value = "-"
             values.append(value)
 
-        columns = [self.col_date, self.col_time, self.col_freq, self.col_mode, self.col_call_sign, self.col_name, self.col_location]
+        columns = [self.col_date, self.col_time, self.col_freq, self.col_mode,
+                   self.col_call_sign, self.col_name, self.col_location]
         for i, column in enumerate(columns):
             label = QLabel(values[i])
             label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
