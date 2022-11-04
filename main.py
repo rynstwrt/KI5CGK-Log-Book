@@ -71,7 +71,7 @@ class MainWindow(QWidget):
             "Frequency:": self.freq_edit,
             "Mode:": self.mode_edit,
             "Name:": self.name_edit,
-            "Location": self.location_edit
+            "Location:": self.location_edit
         }
 
         for label_text in labels:
