@@ -1,24 +1,11 @@
 import sys
 from os import path
-from PyQt6.QtWidgets import (QApplication,
-                             QWidget,
-                             QHBoxLayout,
-                             QPushButton,
-                             QLabel,
-                             QVBoxLayout,
-                             QDateEdit,
-                             QFormLayout,
-                             QTimeEdit,
-                             QLineEdit,
-                             QScrollArea,)
-from PyQt6.QtGui import (
-    QFont,
-    QFontDatabase,
-    QIcon)
-from PyQt6.QtCore import (
-    Qt,
-    QDateTime,
-)
+from PyQt6.QtWidgets import (QApplication, QWidget, QHBoxLayout,
+                             QPushButton, QLabel, QVBoxLayout,
+                             QDateEdit, QFormLayout, QTimeEdit,
+                             QLineEdit, QScrollArea)
+from PyQt6.QtGui import QFont, QFontDatabase, QIcon
+from PyQt6.QtCore import Qt, QDateTime
 
 
 class MainWindow(QWidget):
@@ -50,7 +37,6 @@ class MainWindow(QWidget):
 
     def init_ui(self):
         layout = QHBoxLayout()
-
 
         # Left section
         left_layout = QVBoxLayout()
@@ -109,7 +95,6 @@ class MainWindow(QWidget):
 
         layout.addLayout(left_layout)
 
-
         # Right section
         right_scroll_area = QScrollArea()
         right_widget = QWidget()
@@ -127,7 +112,8 @@ class MainWindow(QWidget):
 
         right_hbox = QHBoxLayout()
         column_margins = [10, 0, 10, 0]
-        columns = [self.col_date, self.col_time, self.col_call_sign, self.col_freq, self.col_mode, self.col_name, self.col_location]
+        columns = [self.col_date, self.col_time, self.col_call_sign, self.col_freq,
+                   self.col_mode, self.col_name, self.col_location]
 
         for column in columns:
             column.setContentsMargins(*column_margins)
@@ -143,7 +129,6 @@ class MainWindow(QWidget):
         right_scroll_area.setWidget(right_widget)
 
         layout.addWidget(right_scroll_area)
-
 
         # Display
         self.setLayout(layout)
@@ -172,11 +157,10 @@ class MainWindow(QWidget):
             column.addWidget(label)
 
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     app.setStyleSheet("QLabel{letter-spacing: 2px; text-transform: uppercase; word-spacing: -4px;}")
-    window = MainWindow()
 
+    window = MainWindow()
     sys.exit(app.exec())
