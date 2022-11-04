@@ -36,10 +36,18 @@ class MainWindow(QWidget):
         self.date_edit = None
         self.time_edit = None
 
+        self.col_date = None
+        self.col_time = None
+        self.col_call_sign = None
+        self.col_freq = None
+        self.col_mode = None
+        self.col_name = None
+        self.col_location = None
+
         self.right_vbox = None
         self.scroll_area = None
 
-        font_id = QFontDatabase.addApplicationFont("/Users/ryanstewart/Documents/GitHub/LogBook/VT323-Regular.ttf")
+        font_id = QFontDatabase.addApplicationFont("VT323-Regular.ttf")
         if font_id < 0:
             print("ERROR LOADING FONT")
         families = QFontDatabase.applicationFontFamilies(font_id)
@@ -126,13 +134,6 @@ class MainWindow(QWidget):
         layout.addLayout(left_layout)
 
 
-        # Middle spacer section
-        # spacer = QWidget()
-        # spacer.setLayout(QVBoxLayout())
-        # spacer.setMinimumWidth(50)
-        # layout.addWidget(spacer)
-
-
         # Right section
         right_scroll_area = QScrollArea()
         right_widget = QWidget()
@@ -141,25 +142,35 @@ class MainWindow(QWidget):
         self.right_vbox.setContentsMargins(10, 10, 10, 10)
 
         right_hbox = QHBoxLayout()
+        column_margins = [10, 0, 10, 0]
+
         self.col_date = QVBoxLayout()
-        self.col_time = QVBoxLayout()
-        self.col_freq = QVBoxLayout()
-        self.col_mode = QVBoxLayout()
-        self.col_call_sign = QVBoxLayout()
-        self.col_name = QVBoxLayout()
-        self.col_location = QVBoxLayout()
-
+        self.col_date.setContentsMargins(*column_margins)
         right_hbox.addLayout(self.col_date)
-        right_hbox.addLayout(self.col_time)
-        right_hbox.addLayout(self.col_freq)
-        right_hbox.addLayout(self.col_mode)
-        right_hbox.addLayout(self.col_call_sign)
-        right_hbox.addLayout(self.col_name)
-        right_hbox.addLayout(self.col_location)
 
-        # for i in range(1, 20):
-        #     a = QLabel("TEST")
-        #     self.right_vbox.addWidget(a)
+        self.col_time = QVBoxLayout()
+        self.col_time.setContentsMargins(*column_margins)
+        right_hbox.addLayout(self.col_time)
+
+        self.col_freq = QVBoxLayout()
+        self.col_freq.setContentsMargins(*column_margins)
+        right_hbox.addLayout(self.col_freq)
+
+        self.col_mode = QVBoxLayout()
+        self.col_mode.setContentsMargins(*column_margins)
+        right_hbox.addLayout(self.col_mode)
+
+        self.col_call_sign = QVBoxLayout()
+        self.col_call_sign.setContentsMargins(*column_margins)
+        right_hbox.addLayout(self.col_call_sign)
+
+        self.col_name = QVBoxLayout()
+        self.col_name.setContentsMargins(*column_margins)
+        right_hbox.addLayout(self.col_name)
+
+        self.col_location = QVBoxLayout()
+        self.col_location.setContentsMargins(*column_margins)
+        right_hbox.addLayout(self.col_location)
 
         self.right_vbox.addLayout(right_hbox)
         right_widget.setLayout(self.right_vbox)
@@ -187,15 +198,21 @@ class MainWindow(QWidget):
         name = self.name_edit.text()
         location = self.location_edit.text()
 
-        self.col_date.addWidget(QLabel(date))
-        self.col_time.addWidget(QLabel(t))
-        self.col_freq.addWidget(QLabel(freq))
-        self.col_mode.addWidget(QLabel(mode))
-        self.col_call_sign.addWidget(QLabel(call_sign))
-        self.col_name.addWidget(QLabel(name))
-        self.col_location.addWidget(QLabel(location))
+        values = []
+        for value in [date, t, freq, mode, call_sign, name, location]:
+            if not value:
+                value = "N/A"
+            values.append(value)
 
-        # values = [date, t, freq, mode, call_sign, name, location]
+        self.col_date.addWidget(QLabel(values[0]))
+        self.col_time.addWidget(QLabel(values[1]))
+        self.col_freq.addWidget(QLabel(values[2]))
+        self.col_mode.addWidget(QLabel(values[3]))
+        self.col_call_sign.addWidget(QLabel(values[4]))
+        self.col_name.addWidget(QLabel(values[5]))
+        self.col_location.addWidget(QLabel(values[6]))
+
+        # values =
         # final_string = ""
         # for i, value in enumerate(values):
         #     if not value:
