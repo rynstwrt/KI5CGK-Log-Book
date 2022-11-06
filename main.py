@@ -1,234 +1,147 @@
 import sys
 from os import path
+from PyQt6.QtCore import QDateTime, Qt
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QDateEdit,
+                             QHBoxLayout, QVBoxLayout, QLabel,
+                             QTimeEdit, QComboBox, QLineEdit,
+                             QWidget, QSizePolicy, QGridLayout,
+                             QPushButton)
+from PyQt6.QtGui import QIcon
 
-from PyQt6.QtCore import Qt, QDateTime
-from PyQt6.QtGui import QFont, QFontDatabase, QIcon
-from PyQt6.QtWidgets import (QApplication, QWidget, QHBoxLayout,
-                             QPushButton, QLabel, QVBoxLayout,
-                             QDateEdit, QFormLayout, QTimeEdit,
-                             QLineEdit, QScrollArea, QComboBox,
-                             QSizePolicy)
 
+class MainWindow(QMainWindow):
 
-class MainWindow(QWidget):
     def __init__(self):
-        super().__init__()
+        super(MainWindow, self).__init__()
 
         self.setWindowTitle("KI5CGK Log Book")
-        self.setWindowIcon(QIcon("Images/logo.png"))
+        self.setWindowIcon(QIcon(path.abspath("Images/logo.png")))
         self.setStyleSheet("background-color: #24252b; color: white;")
 
-        self.num_entries = 0
+        self.labels = ["DATE:", "TIME:", "CALL SIGN:", "FREQUENCY:", "MODE:", "NAME:", "LOCATION:"]
+        self.num_entries = 1
+        self.h_layout = None
+        self.grid = None
 
-        self.columns = None
-
-        self.date_edit = None
-        self.time_edit = None
-        self.call_sign_edit = None
-        self.freq_edit = None
-        self.mode_edit = None
-        self.name_edit = None
-        self.location_edit = None
-
-        self.col_date = None
-        self.col_time = None
-        self.col_call_sign = None
-        self.col_freq = None
-        self.col_mode = None
-        self.col_name = None
-        self.col_location = None
-        self.col_delete = None
+        self.date_input = None
+        self.time_input = None
+        self.call_sign_input = None
+        self.frequency_input = None
+        self.mode_input = None
+        self.name_input = None
+        self.location_input = None
 
         self.init_ui()
+        self.init_left_ui()
+        self.init_right_ui()
 
 
     def init_ui(self):
-        layout = QHBoxLayout()
+        main_widget = QWidget()
+        self.setCentralWidget(main_widget)
 
-        # ------------ LEFT SECTION ------------ #
-        left_layout = QVBoxLayout()
-        left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.h_layout = QHBoxLayout()
+        main_widget.setLayout(self.h_layout)
 
-        left_layout_form = QFormLayout()
-        left_layout_form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
-        left_layout_form.setFormAlignment(Qt.AlignmentFlag.AlignRight)
 
-        self.date_edit = QDateEdit(calendarPopup=True)
-        self.date_edit.setDateTime(QDateTime.currentDateTime())
-        self.date_edit.setStyleSheet("outline: none;")
+    def init_left_ui(self):
+        vert_section = QVBoxLayout()
+        vert_section.setAlignment(Qt.AlignmentFlag.AlignTop)
+        vert_section.setSpacing(15)
+        self.h_layout.addLayout(vert_section)
 
-        self.time_edit = QTimeEdit()
-        self.time_edit.setTime(QDateTime.currentDateTime().time())
+        for label_text in self.labels:
+            row = QHBoxLayout()
+            row.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            row.setSpacing(20)
 
-        self.freq_edit = QLineEdit()
-
-        self.mode_edit = QComboBox()
-        self.mode_edit.addItems(["-/-", "SSB", "CW", "AM",
-                                 "FM", "SSTV", "FT8", "FT4",
-                                 "Contestia", "Hellschreiber", "PACTOR", "PSK",
-                                 "QPSK", "8PSK", "PSKR", "RTTY",
-                                 "DominoEX", "FSQ", "IFKP", "MFSK",
-                                 "MT63", "OFDM", "Olivia", "THOR",
-                                 "Throb", "WEFAX", "Navtex/SitorB"])
-
-        self.call_sign_edit = QLineEdit()
-        self.name_edit = QLineEdit()
-        self.location_edit = QLineEdit()
-
-        label_font_id = QFontDatabase.addApplicationFont(path.abspath("Fonts/Roboto-Regular.ttf"))
-        label_families = QFontDatabase.applicationFontFamilies(label_font_id)
-        label_font = QFont(label_families[0], 15)
-
-        labels = {
-            "Date:": self.date_edit,
-            "Time:": self.time_edit,
-            "Call Sign:": self.call_sign_edit,
-            "Freq:": self.freq_edit,
-            "Mode:": self.mode_edit,
-            "Name:": self.name_edit,
-            "Location:": self.location_edit
-        }
-
-        for label_text in labels:
             label = QLabel(label_text)
-            label.setFont(label_font)
-            label.setStyleSheet("color: #ff885e;")
-            label.setContentsMargins(0, 0, 0, 10)
+            label.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
+            row.addWidget(label)
 
-            text_edit = labels[label_text]
-            text_edit.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+            if label_text == "DATE:":
+                self.date_input = QDateEdit(calendarPopup=True)
+                self.date_input.setDateTime(QDateTime.currentDateTime())
+                form = self.date_input
+            elif label_text == "TIME:":
+                self.time_input = QTimeEdit()
+                self.time_input.setTime(QDateTime.currentDateTime().time())
+                form = self.time_input
+            elif label_text == "CALL SIGN:":
+                self.call_sign_input = QLineEdit()
+                form = self.call_sign_input
+            elif label_text == "FREQUENCY:":
+                self.frequency_input = QLineEdit()
+                form = self.frequency_input
+            elif label_text == "MODE:":
+                self.mode_input = QComboBox()
+                self.mode_input.addItem("TEST")
+                form = self.mode_input
+            elif label_text == "NAME:":
+                self.name_input = QLineEdit()
+                form = self.name_input
+            elif label_text == "LOCATION:":
+                self.location_input = QLineEdit()
+                form = self.location_input
 
-            left_layout_form.addRow(label, text_edit)
+            form.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
 
-        left_layout.addLayout(left_layout_form)
+            row.addWidget(form)
+            vert_section.addLayout(row)
 
-        btn_style = "background-color: #ff885e; color: black; border: 0; padding: 8px 4px; margin: 4px 0;"
-
-        button_font_id = QFontDatabase.addApplicationFont(path.abspath("Fonts/Roboto-Regular.ttf"))
-        button_families = QFontDatabase.applicationFontFamilies(button_font_id)
-        button_font = QFont(button_families[0], 15)
+        btn_row = QHBoxLayout()
 
         btn_add = QPushButton("ADD ENTRY")
-        btn_add.setStyleSheet(btn_style)
-        btn_add.setFont(button_font)
-        left_layout.addWidget(btn_add)
-        btn_add.clicked.connect(lambda: self.on_add_entry(self.num_entries))
+        btn_add.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
+        btn_add.clicked.connect(self.on_add_button_clicked)
 
-        layout.addLayout(left_layout)
+        btn_row.addWidget(btn_add)
+        vert_section.addLayout(btn_row)
 
-        # ------------ RIGHT SECTION ------------ #
-        right_scroll_area = QScrollArea()
-        
-        right_widget = QWidget()
-        
-        self.right_vbox = QVBoxLayout()
-        self.right_vbox.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
-        self.right_vbox.setContentsMargins(10, 10, 10, 10)
 
-        self.col_date = QVBoxLayout()
-        self.col_time = QVBoxLayout()
-        self.col_freq = QVBoxLayout()
-        self.col_mode = QVBoxLayout()
-        self.col_call_sign = QVBoxLayout()
-        self.col_name = QVBoxLayout()
-        self.col_location = QVBoxLayout()
-        self.col_delete = QVBoxLayout()
+    def init_right_ui(self):
+        self.grid = QGridLayout()
+        self.grid.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        self.grid.setSpacing(15)
 
-        right_hbox = QHBoxLayout()
+        for i in range(len(self.labels)):
+            self.grid.setColumnStretch(i, 1)
 
-        self.columns = [self.col_date, self.col_time, self.col_call_sign, self.col_freq,
-                        self.col_mode, self.col_name, self.col_location, self.col_delete]
+        self.h_layout.addLayout(self.grid)
 
-        for column in self.columns:
-            column.setContentsMargins(10, 0, 10, 0)
-            right_hbox.addLayout(column)
-
-        self.right_vbox.addLayout(right_hbox)
-        right_widget.setLayout(self.right_vbox)
-
-        right_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        right_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        right_scroll_area.setWidgetResizable(True)
-        right_scroll_area.setMinimumWidth(800)
-        right_scroll_area.setWidget(right_widget)
-
-        layout.addWidget(right_scroll_area)
-
-        for col in self.columns:
-            label_text = ""
-            if col is self.col_date:
-                label_text = "DATE"
-            elif col is self.col_time:
-                label_text = "TIME"
-            elif col is self.col_call_sign:
-                label_text = "CALL SIGN"
-            elif col is self.col_freq:
-                label_text = "FREQUENCY"
-            elif col is self.col_mode:
-                label_text = "MODE"
-            elif col is self.col_name:
-                label_text = "NAME"
-            elif col is self.col_location:
-                label_text = "LOCATION"
-            elif col is self.col_delete:
-                label_text = "DELETE"
-            else:
-                label_text = "DUMBASS"
-
-            label = QLabel(label_text)
+        for i, header_text in enumerate(self.labels):
+            header_text = header_text[:-1]
+            label = QLabel(header_text)
             label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-            label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-            label.adjustSize()
-            col.addWidget(label)
-
-        # ------------ DISPLAY ------------ #
-        self.setLayout(layout)
-        self.show()
+            self.grid.addWidget(label, 0, i)
 
 
-    def on_add_entry(self, entry_num):
-        date = self.date_edit.date().toString("yyyy-MM-dd")
-        t = self.time_edit.time().toString("hh:mm")
-        freq = self.freq_edit.text()
-        mode = self.mode_edit.currentText()
-        call_sign = self.call_sign_edit.text()
-        name = self.name_edit.text()
-        location = self.location_edit.text()
+    def on_add_button_clicked(self):
+        values = [self.date_input.date().toString("yyyy-MM-dd"),
+                  self.time_input.time().toString("hh:mm"),
+                  self.call_sign_input.text(),
+                  self.frequency_input.text(),
+                  self.mode_input.currentText(),
+                  self.name_input.text(),
+                  self.location_input.text()]
 
-        values = []
-        for value in [date, t, freq, mode, call_sign, name, location]:
+        for i, value in enumerate(values):
             if not value:
                 value = "-/-"
-            values.append(value)
 
-        for i, column in enumerate(self.columns[:-1]):
-            label = QLabel(values[i])
+            label = QLabel(value)
             label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-            label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-            label.adjustSize()
-            column.addWidget(label)
-
-        del_button = QPushButton("X")
-        del_button.setStyleSheet("background-color: red;")
-        del_button.clicked.connect(lambda: self.on_delete_entry(entry_num))
-        self.col_delete.addWidget(del_button)
+            self.grid.addWidget(label, self.num_entries, i)
 
         self.num_entries += 1
-
-
-    def on_delete_entry(self, entry_num):
-        # for row in self.right_vbox.children():
-        #     row.takeAt(entry_num)
-        self.right_vbox.takeAt(entry_num)
-
-        self.num_entries -= 1
-
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    app.setStyleSheet("QLabel{letter-spacing: 2px; text-transform: uppercase; word-spacing: -4px;}")
+    app.setStyleSheet("QLabel{letter-spacing: 2px; text-transform: uppercase;}")
 
     window = MainWindow()
-    sys.exit(app.exec())
+    window.show()
+
+    app.exec()
