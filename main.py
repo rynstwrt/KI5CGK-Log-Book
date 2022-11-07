@@ -1,12 +1,14 @@
 import sys
-from os import path
-from PyQt6.QtCore import QDateTime, Qt
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QDateEdit,
-                             QHBoxLayout, QVBoxLayout, QLabel,
-                             QTimeEdit, QComboBox, QLineEdit,
-                             QWidget, QSizePolicy, QGridLayout,
-                             QPushButton)
-from PyQt6.QtGui import QIcon
+import os
+from PySide6.QtCore import QDateTime, Qt
+from PySide6.QtWidgets import (QApplication, QMainWindow, QDateEdit,
+                               QHBoxLayout, QVBoxLayout, QLabel,
+                               QTimeEdit, QComboBox, QLineEdit,
+                               QWidget, QSizePolicy, QTableWidget,
+                               QPushButton, QTableWidgetItem, QFormLayout,
+                               QHeaderView)
+from PySide6.QtGui import QIcon
+from qt_material import apply_stylesheet
 
 
 class MainWindow(QMainWindow):
@@ -15,13 +17,19 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle("KI5CGK Log Book")
-        self.setWindowIcon(QIcon(path.abspath("Images/logo.png")))
-        self.setStyleSheet("background-color: #24252b; color: white;")
+        self.setWindowIcon(QIcon(os.path.abspath("Images/logo.png")))
 
-        self.labels = ["DATE:", "TIME:", "CALL SIGN:", "FREQUENCY:", "MODE:", "NAME:", "LOCATION:"]
-        self.num_entries = 1
+        self.labels = ["DATE:", "TIME:", "CALL:", "FREQ:", "MODE:", "NAME:", "LOC:"]
+        self.modes = ["/", "SSB", "CW", "AM",
+                      "FM", "SSTV", "FT8", "FT4",
+                      "Contestia", "Hellschreiber", "PACTOR", "PSK",
+                      "QPSK", "8PSK", "PSKR", "RTTY",
+                      "DominoEX", "FSQ", "IFKP", "MFSK",
+                      "MT63", "OFDM", "Olivia", "THOR",
+                      "Throb", "WEFAX", "Navtex/SitorB"]
+        self.num_entries = 0
         self.h_layout = None
-        self.grid = None
+        self.table = None
 
         self.date_input = None
         self.time_input = None
@@ -50,44 +58,46 @@ class MainWindow(QMainWindow):
         vert_section.setSpacing(15)
         self.h_layout.addLayout(vert_section)
 
-        for label_text in self.labels:
-            row = QHBoxLayout()
-            row.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            row.setSpacing(20)
+        form_section = QFormLayout()
 
+        for label_text in self.labels:
             label = QLabel(label_text)
             label.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
-            row.addWidget(label)
 
-            if label_text == "DATE:":
+            if label_text == self.labels[0]:  # date
                 self.date_input = QDateEdit(calendarPopup=True)
-                self.date_input.setDateTime(QDateTime.currentDateTime())
+                current_date = QDateTime.currentDateTime().date()
+                self.date_input.setDate(current_date)
+                self.date_input.setMaximumDate(current_date)
                 form = self.date_input
-            elif label_text == "TIME:":
+            elif label_text == self.labels[1]:  # time
                 self.time_input = QTimeEdit()
-                self.time_input.setTime(QDateTime.currentDateTime().time())
+                current_time = QDateTime.currentDateTime().time()
+                self.time_input.setTime(current_time)
+                self.time_input.setMaximumTime(current_time)
                 form = self.time_input
-            elif label_text == "CALL SIGN:":
+            elif label_text == self.labels[2]:  # call sign
                 self.call_sign_input = QLineEdit()
                 form = self.call_sign_input
-            elif label_text == "FREQUENCY:":
+            elif label_text == self.labels[3]:  # frequency
                 self.frequency_input = QLineEdit()
                 form = self.frequency_input
-            elif label_text == "MODE:":
+            elif label_text == self.labels[4]:  # mode
                 self.mode_input = QComboBox()
-                self.mode_input.addItem("TEST")
+                self.mode_input.addItems(self.modes)
                 form = self.mode_input
-            elif label_text == "NAME:":
+            elif label_text == self.labels[5]:  # name
                 self.name_input = QLineEdit()
                 form = self.name_input
-            elif label_text == "LOCATION:":
+            elif label_text == self.labels[6]:  # location
                 self.location_input = QLineEdit()
                 form = self.location_input
 
+            form.setMinimumWidth(200)
             form.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            form_section.addRow(label, form)
 
-            row.addWidget(form)
-            vert_section.addLayout(row)
+        vert_section.addLayout(form_section)
 
         btn_row = QHBoxLayout()
 
@@ -100,20 +110,15 @@ class MainWindow(QMainWindow):
 
 
     def init_right_ui(self):
-        self.grid = QGridLayout()
-        self.grid.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
-        self.grid.setSpacing(15)
+        self.table = QTableWidget(self.num_entries, len(self.labels) + 1)
+        self.table.setMinimumWidth(800)
 
-        for i in range(len(self.labels)):
-            self.grid.setColumnStretch(i, 1)
+        self.table.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table.setHorizontalHeaderLabels(self.labels + ["DEL:"])
+        self.table.verticalHeader().setVisible(False)
 
-        self.h_layout.addLayout(self.grid)
-
-        for i, header_text in enumerate(self.labels):
-            header_text = header_text[:-1]
-            label = QLabel(header_text)
-            label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-            self.grid.addWidget(label, 0, i)
+        self.h_layout.addWidget(self.table)
 
 
     def on_add_button_clicked(self):
@@ -125,23 +130,48 @@ class MainWindow(QMainWindow):
                   self.name_input.text(),
                   self.location_input.text()]
 
+        self.table.setRowCount(self.table.rowCount() + 1)
+
         for i, value in enumerate(values):
             if not value:
-                value = "-/-"
+                value = "/"
 
-            label = QLabel(value)
-            label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-            self.grid.addWidget(label, self.num_entries, i)
+            table_item = QTableWidgetItem(value)
+            self.table.setItem(self.num_entries, i, table_item)
+            table_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        del_button = QPushButton("DEL")
+        # del_button.clicked.connect(lambda: self.on_delete_button_clicked(del_index))
+        self.table.setCellWidget(self.num_entries, len(values), del_button)
 
         self.num_entries += 1
+
+        current_date = QDateTime.currentDateTime().date()
+        self.date_input.setMaximumDate(current_date)
+        self.date_input.setDate(current_date)
+
+        current_time = QDateTime.currentDateTime().time()
+        self.time_input.setMaximumTime(current_time)
+        self.time_input.setTime(current_time)
+
+        self.call_sign_input.clear()
+        self.frequency_input.clear()
+        self.mode_input.setCurrentIndex(0)
+        self.name_input.clear()
+        self.location_input.clear()
+
+
+    def on_delete_button_clicked(self, index):
+        print(index)
+        self.table.removeRow(index)
+        self.num_entries -= 1
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    app.setStyleSheet("QLabel{letter-spacing: 2px; text-transform: uppercase;}")
+    apply_stylesheet(app, theme="dark_cyan.xml")
 
     window = MainWindow()
     window.show()
-
     app.exec()
