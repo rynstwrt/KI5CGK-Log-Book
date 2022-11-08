@@ -181,13 +181,6 @@ class MainWindow(QMainWindow):
         print(index)
         self.table.removeRow(index)
 
-    def load_data(self):
-        with open("entries.json", "r") as file_read:
-            json_data = json.load(file_read)
-
-        self.entries = json_data["entries"]
-        print(self.entries)
-
     def save_data(self):
         json_data = {"entries": []}
         for entry in self.entries:
@@ -195,6 +188,25 @@ class MainWindow(QMainWindow):
 
         with open("entries.json", "w") as file_write:
             json.dump(json_data, file_write)
+
+    def load_data(self):
+        with open("entries.json", "r") as file_read:
+            json_data = json.load(file_read)
+
+        self.entries = json_data["entries"]
+
+        for i, entry in enumerate(self.entries):
+            print(entry)
+            for j, col_text in enumerate(entry):
+                print(col_text)
+                table_item = QTableWidgetItem(col_text)
+                table_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.table.setItem(i, j, table_item)
+
+            # del_button = QPushButton("DEL")
+            # del_button.clicked.connect(lambda: self.on_delete_button_clicked(del_index))
+            # self.table.setCellWidget(i, len(entry), del_button)
+
 
 
 if __name__ == "__main__":
