@@ -11,7 +11,6 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QDateEdit,
 from PySide6.QtGui import QIcon
 from qt_material import apply_stylesheet
 
-
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -45,6 +44,7 @@ class MainWindow(QMainWindow):
         self.init_ui()
         self.init_left_ui()
         self.init_right_ui()
+        self.load_data()
 
     def init_ui(self):
         main_widget = QWidget()
@@ -106,16 +106,6 @@ class MainWindow(QMainWindow):
         btn_add.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
         btn_add.clicked.connect(self.on_add_button_clicked)
 
-        btn_save = QPushButton("SAVE")
-        btn_save.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
-        btn_save.clicked.connect(self.save_data)
-        btn_row.addWidget(btn_save)
-
-        btn_load = QPushButton("LOAD")
-        btn_load.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
-        btn_load.clicked.connect(self.load_data)
-        btn_row.addWidget(btn_load)
-
         btn_row.addWidget(btn_add)
         vert_section.addLayout(btn_row)
 
@@ -143,11 +133,15 @@ class MainWindow(QMainWindow):
                         self.name_input.text(),
                         self.location_input.text()]
 
+        self.add_row_to_table(input_values)
+        self.save_data()
+
+    def add_row_to_table(self, data):
         values = []
 
         self.table.setRowCount(self.table.rowCount() + 1)
 
-        for i, value in enumerate(input_values):
+        for i, value in enumerate(data):
             if not value:
                 value = "/"
 
@@ -158,10 +152,6 @@ class MainWindow(QMainWindow):
             table_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.entries += [values]
-
-        del_button = QPushButton("DEL")
-        # del_button.clicked.connect(lambda: self.on_delete_button_clicked(del_index))
-        self.table.setCellWidget(len(self.entries), len(values), del_button)
 
         current_date = QDateTime.currentDateTime().date()
         self.date_input.setMaximumDate(current_date)
@@ -177,10 +167,6 @@ class MainWindow(QMainWindow):
         self.name_input.clear()
         self.location_input.clear()
 
-    def on_delete_button_clicked(self, index):
-        print(index)
-        self.table.removeRow(index)
-
     def save_data(self):
         json_data = {"entries": []}
         for entry in self.entries:
@@ -190,24 +176,15 @@ class MainWindow(QMainWindow):
             json.dump(json_data, file_write)
 
     def load_data(self):
+        if not os.path.exists("entries.json"):
+            self.save_data()
+
         with open("entries.json", "r") as file_read:
             json_data = json.load(file_read)
 
-        self.entries = json_data["entries"]
-
-        for i, entry in enumerate(self.entries):
-            print(entry)
-            for j, col_text in enumerate(entry):
-                print(col_text)
-                table_item = QTableWidgetItem(col_text)
-                table_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.table.setItem(i, j, table_item)
-
-            # del_button = QPushButton("DEL")
-            # del_button.clicked.connect(lambda: self.on_delete_button_clicked(del_index))
-            # self.table.setCellWidget(i, len(entry), del_button)
-
-
+        entry_arr = json_data["entries"]
+        for entry in entry_arr:
+            self.add_row_to_table(entry)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
