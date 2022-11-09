@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QDateEdit,
                                QTimeEdit, QComboBox, QLineEdit,
                                QWidget, QSizePolicy, QTableWidget,
                                QPushButton, QTableWidgetItem, QFormLayout,
-                               QHeaderView, QFileDialog)
+                               QHeaderView)
 from PySide6.QtGui import QIcon
 from qt_material import apply_stylesheet
 
@@ -124,18 +124,6 @@ class MainWindow(QMainWindow):
 
         self.h_layout.addWidget(self.table)
 
-    def on_add_button_clicked(self):
-        input_values = [self.date_input.date().toString("yyyy-MM-dd"),
-                        self.time_input.time().toString("hh:mm"),
-                        self.call_sign_input.text(),
-                        self.frequency_input.text(),
-                        self.mode_input.currentText(),
-                        self.name_input.text(),
-                        self.location_input.text()]
-
-        self.add_row_to_table(input_values)
-        self.save_data()
-
     def add_row_to_table(self, data):
         values = []
 
@@ -153,6 +141,11 @@ class MainWindow(QMainWindow):
 
         self.entries += [values]
 
+        btn_del = QPushButton("DEL")
+        self.table.setCellWidget(len(self.entries) - 1, len(values), btn_del)
+        btn_del_parent = btn_del.parentWidget()
+        btn_del.clicked.connect(lambda: self.on_del_button_clicked(btn_del_parent))
+
         current_date = QDateTime.currentDateTime().date()
         self.date_input.setMaximumDate(current_date)
         self.date_input.setDate(current_date)
@@ -166,6 +159,21 @@ class MainWindow(QMainWindow):
         self.mode_input.setCurrentIndex(0)
         self.name_input.clear()
         self.location_input.clear()
+
+    def on_add_button_clicked(self):
+        input_values = [self.date_input.date().toString("yyyy-MM-dd"),
+                        self.time_input.time().toString("hh:mm"),
+                        self.call_sign_input.text(),
+                        self.frequency_input.text(),
+                        self.mode_input.currentText(),
+                        self.name_input.text(),
+                        self.location_input.text()]
+
+        self.add_row_to_table(input_values)
+        self.save_data()
+
+    def on_del_button_clicked(self, parent):
+        print(parent)
 
     def save_data(self):
         json_data = {"entries": []}
