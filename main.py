@@ -116,7 +116,6 @@ class MainWindow(QMainWindow):
         self.table.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table.setHorizontalHeaderLabels(self.labels + ["DEL:"])
-        self.table.verticalHeader().setVisible(False)
 
         for i, entry in enumerate(self.entries):
             for j, entry_part in enumerate(entry):
@@ -143,8 +142,7 @@ class MainWindow(QMainWindow):
 
         btn_del = QPushButton("DEL")
         self.table.setCellWidget(len(self.entries) - 1, len(values), btn_del)
-        btn_del_parent = btn_del.parentWidget()
-        btn_del.clicked.connect(lambda: self.on_del_button_clicked(btn_del_parent))
+        btn_del.clicked.connect(self.on_del_button_clicked)
 
         current_date = QDateTime.currentDateTime().date()
         self.date_input.setMaximumDate(current_date)
@@ -172,8 +170,8 @@ class MainWindow(QMainWindow):
         self.add_row_to_table(input_values)
         self.save_data()
 
-    def on_del_button_clicked(self, parent):
-        print(parent)
+    def on_del_button_clicked(self):
+        row_index = self.table.selectedIndexes([0]).row()
 
     def save_data(self):
         json_data = {"entries": []}
