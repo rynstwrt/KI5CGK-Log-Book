@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QDateEdit,
                                QPushButton, QTableWidgetItem, QFormLayout,
                                QHeaderView)
 from PySide6.QtGui import QIcon
+from PySide6.QtSql import QSqlDatabase, QSqlQuery
 from qt_material import apply_stylesheet
 
 class MainWindow(QMainWindow):
@@ -40,6 +41,10 @@ class MainWindow(QMainWindow):
         self.mode_input = None
         self.name_input = None
         self.location_input = None
+
+        self.db_connection = None
+
+        self.init_database()
 
         self.init_ui()
         self.init_left_ui()
@@ -200,6 +205,29 @@ class MainWindow(QMainWindow):
         entry_arr = json_data["entries"]
         for entry in entry_arr:
             self.add_row_to_table(entry)
+
+    def init_database(self):
+        self.db_connection = QSqlDatabase.addDatabase("QSQLITE")
+        self.db_connection.setDatabaseName("EntryDatabase.sqlite")
+        self.db_connection.open()
+
+        if not self.db_connection.isOpen():
+            print("ERROR OPENING EntryDatabase.sqlite")
+
+        create_table_query = QSqlQuery()
+        create_table_query.exec(
+            """
+            CREATE TABLE IF NOT EXISTS entries (
+                date VARCHAR,
+                time VARCHAR,
+                callsign VARCHAR,
+                frequency VARCHAR,
+                mode VARCHAR,
+                name VARCHAR,
+                location VARCHAR)
+            """
+        )
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
