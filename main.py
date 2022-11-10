@@ -171,7 +171,16 @@ class MainWindow(QMainWindow):
         self.save_data()
 
     def on_del_button_clicked(self):
-        row_index = self.table.selectedIndexes([0]).row()
+        row_index = self.table.selectedIndexes()[0].row()
+        model = self.table.model()
+
+        row_contents = []
+        for i in range(len(self.labels)):
+            row_contents.append(model.data(model.index(row_index, i)))
+
+        self.entries.remove(row_contents)
+        self.table.removeRow(row_index)
+        self.save_data()
 
     def save_data(self):
         json_data = {"entries": []}
