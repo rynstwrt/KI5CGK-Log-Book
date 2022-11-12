@@ -45,7 +45,7 @@ class MainWindow(QMainWindow):
 
         self.db_connection = None
 
-        self.init_database()
+        # self.init_database()
 
         self.init_ui()
         self.init_left_ui()
@@ -188,73 +188,47 @@ class MainWindow(QMainWindow):
         self.table.removeRow(row_index)
         self.save_data()
 
-    def init_database(self):
-        self.db_connection = QSqlDatabase.addDatabase("QSQLITE")
-        self.db_connection.setDatabaseName("EntryDatabase.sqlite")
-        self.db_connection.open()
+    # def init_database(self):
+    #     self.db_connection = QSqlDatabase.addDatabase("QSQLITE")
+    #     self.db_connection.setDatabaseName("EntryDatabase.sqlite")
+    #     self.db_connection.open()
+    #
+    #     if not self.db_connection.isOpen():
+    #         print("ERROR OPENING EntryDatabase.sqlite")
+    #
+    #     create_table_query = QSqlQuery()
+    #     create_table_query.exec(
+    #         """
+    #         CREATE TABLE IF NOT EXISTS entries (
+    #             date VARCHAR,
+    #             time VARCHAR,
+    #             callsign VARCHAR,
+    #             frequency VARCHAR,
+    #             mode VARCHAR,
+    #             name VARCHAR,
+    #             location VARCHAR)
+    #         """
+    #     )
 
-        if not self.db_connection.isOpen():
-            print("ERROR OPENING EntryDatabase.sqlite")
-
-        create_table_query = QSqlQuery()
-        create_table_query.exec(
-            """
-            CREATE TABLE IF NOT EXISTS entries (
-                date VARCHAR,
-                time VARCHAR,
-                callsign VARCHAR,
-                frequency VARCHAR,
-                mode VARCHAR,
-                name VARCHAR,
-                location VARCHAR)
-            """
-        )
-
-    def save_data(self):  # TODO: rewrite with sql database
-        print("saving")
-
+    def save_data(self):
+        json_data = {"entries": []}
         for entry in self.entries:
-            insert_query = QSqlQuery()
-            insert_query.exec(
-                f"""
-                INSERT INTO entries (
-                    date, 
-                    time, 
-                    callsign, 
-                    frequency, 
-                    mode, 
-                    name, 
-                    location
-                )
-                VALUES (
-                    '{entry[0]}', 
-                    '{entry[1]}', 
-                    '{entry[2]}', 
-                    '{entry[3]}', 
-                    '{entry[4]}', 
-                    '{entry[5]}', 
-                    '{entry[6]}')
-                """
-            )
+            json_data["entries"] += [entry]
 
-        # json_data = {"entries": []}
-        # for entry in self.entries:
-        #     json_data["entries"] += [entry]
-        #
-        # with open("entries.json", "w") as file_write:
-        #     json.dump(json_data, file_write)
+        with open("entries.json", "w") as file_write:
+            json.dump(json_data, file_write)
 
-    def load_data(self):  # TODO: rewrite with sql database
+    def load_data(self):
         print("loading")
-        # if not os.path.exists("entries.json"):
-        #     self.save_data()
-        #
-        # with open("entries.json", "r") as file_read:
-        #     json_data = json.load(file_read)
-        #
-        # entry_arr = json_data["entries"]
-        # for entry in entry_arr:
-        #     self.add_row_to_table(entry)
+        if not os.path.exists("entries.json"):
+            self.save_data()
+
+        with open("entries.json", "r") as file_read:
+            json_data = json.load(file_read)
+
+        entry_arr = json_data["entries"]
+        for entry in entry_arr:
+            self.add_row_to_table(entry)
 
 
 if __name__ == "__main__":
